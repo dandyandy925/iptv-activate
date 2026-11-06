@@ -18,7 +18,7 @@ class Handler(BaseHTTPRequestHandler):
             if ":" not in mac and len(mac) == 12:
                 mac = ":".join(mac[i:i+2] for i in range(0,12,2))
             print("Got MAC:", mac)
-            url = f"{BASE}?action=new&type=mag&user={mac}&sub=12&pack={PACK}&country=us&api_key={API_KEY}"
+            url = f"{BASE}?action=new&type=m3u&sub=12&pack={PACK}&country=us&api_key={API_KEY}"
             req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
             with urllib.request.urlopen(req) as r:
                 raw = r.read()
@@ -29,7 +29,11 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             item = data[0] if isinstance(data, list) else data
             if item.get("status") == "true":
-                self.wfile.write(json.dumps({"url": item.get("url"), "user_id": item.get("user_id")}).encode())
+                self.wfile.write(json.dumps({
+                    "url": item.get("url"),
+                    "username": item.get("username"),
+                    "password": item.get("password")
+                }).encode())
             else:
                 self.wfile.write(json.dumps({"error": "panel", "detail": data}).encode())
         except Exception as e:
